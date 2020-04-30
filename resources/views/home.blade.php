@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-header">Registro de Vehículos</div>
 
@@ -15,22 +15,26 @@
                     @endif
 
                     <!-- Button trigger modal -->
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vehiculoModal">
                         Agregar Vehiculo
                     </button>
-                    <button type="button" class="btn btn-success">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#subirExcelModal">
                         Subir excel
                     </button>
+                <a href=" {{ route('exportar.automoviles')}}" class="btn btn-success"> 
+                        Descargar excel
+                    </a>
+                    
 
                     <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="vehiculoModal" tabindex="-1" role="dialog"
+                        aria-labelledby="vehiculoModalLabel" aria-hidden="true">
                         <div class="modal-dialog " role="document">
                             <div class="modal-content">
                                 <form method="POST" action="{{ route('automovil.store') }}" id="form-automovil"
                                     enctype="multipart/form-data">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Formulario agregar vehículo</h5>
+                                        <h5 class="modal-title" id="vehiculoModalLabel">Formulario agregar vehículo</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -95,6 +99,93 @@
                             </div>
                         </div>
                     </div>
+                    <!-- fin Modal -->
+
+
+
+                     <!-- Modal -->
+                     <div class="modal fade" id="subirExcelModal" tabindex="-1" role="dialog"
+                     aria-labelledby="subirExcelModalLabel" aria-hidden="true">
+                     <div class="modal-dialog " role="document">
+                         <div class="modal-content">
+                             <form method="POST" action="{{ route('importar.automoviles') }}" id="form-automovil"
+                                 enctype="multipart/form-data">
+                                 <div class="modal-header">
+                                     <h5 class="modal-title" id="subirExcelModalLabel">Formulario importar excel</h5>
+                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                         <span aria-hidden="true">&times;</span>
+                                     </button>
+                                 </div>
+                                 <div class="modal-body">
+
+                                     @csrf
+                                     
+                                     <div class="form-row">
+                                         <div class="form-group col-md-12">
+                                             <label for="archivo_excel">Importar Excel</label>
+                                             <input type="file" class="form-control" name="archivo_excel" id="archivo_excel">
+                                             <span class="invalid-feedback hide" role="alert"></span>
+                                             <div class="valid-feedback">ok!</div>
+                                         </div>
+                                     </div>
+
+
+
+                                 </div>
+                                 <div class="modal-footer">
+                                     <button type="button" class="btn btn-secondary"
+                                         data-dismiss="modal">Cerrar</button>
+                                     <button type="submit" class="btn btn-primary"
+                                         id="btn-guardar-vehiculo">Enviar</button>
+                                 </div>
+
+                             </form>
+                         </div>
+                     </div>
+                 </div>
+                  <!-- fin Modal -->
+
+
+                    <br><br><br>
+                    <div class="row">
+                        <div class=" col-md-12">
+
+                            <table class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Conductor</th>
+                                        <th scope="col">Placas</th>
+                                        <th scope="col">Modelo</th>
+                                        <th scope="col">Valor Ingreso</th>
+                                        <th scope="col">Fecha Creación</th>
+                                        <th scope="col">Fecha Actualización</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($datos as $automovil)
+                                    <tr>
+                                    <th scope="row">{{ $automovil->id }}</th>
+                                        <td>{{ $automovil->conductor }}</td>
+                                        <td>{{ $automovil->placas }}</td>
+                                        <td>{{ $automovil->modelo }}</td>
+                                        <td>{{ $automovil->valor }}</td>
+                                        <td>{{ $automovil->created_at }}</td>
+                                        <td>{{ $automovil->updated_at }}</td>
+                                    </tr>
+                                    @endforeach
+
+
+                                </tbody>
+                            </table>
+
+                            {{ $datos->links()}}
+                        </div>
+
+
+                    </div>
+
+
 
                 </div>
             </div>
@@ -103,6 +194,7 @@
 </div>
 
 <script>
+    // toastr.error("hola");
     function getCamposForm(idForm) {
         var camposForm = [];
         $("#" + idForm)
@@ -159,23 +251,15 @@
                 // $('#btn-enviar-contacto').removeClass('d-block').addClass('d-none');
                 // $('#btn-loading-contacto').removeClass('d-none').addClass('d-block');
             }
-        }).done(function(res) {
+        }).done(function(reply) {
 
 
-            // $('#btn-enviar-contacto').removeClass('d-none').addClass('d-block');
-            // $('#btn-loading-contacto').removeClass('d-block').addClass('d-none');
+            
 
-reply = res;
-console.log('========prueba=====');
-console.log(reply);
+
 
 
 if (reply.created == false) {
-    // toastr.error("Por favor revisar el formulario");
-    // alert("Por favor revisar el formulario");
-
-    // $('#message-success-contacto').removeClass('d-block').addClass('d-none');
-    // $('#message-alert-contacto').removeClass('d-none').addClass('d-block');
     var camposError = [];
     errors = reply.errors;
 
@@ -219,28 +303,9 @@ if (reply.created == false) {
 }
 
 if (reply.created == true) {
-
-    limpiarFormulario('form-automovil');
-    // for (e in camposForm) {
-    //     $("#" + camposForm[e])
-    //         .removeClass("is-invalid")
-    //         .addClass("is-valid");
-    //     $("#" + camposForm[e])
-    //         .siblings("span")
-    //         .removeClass("show")
-    //         .addClass("hide")
-    //         .text("");
-    // }
-
-    // $('#message-success-contacto').removeClass('d-none').addClass('d-block');
-    // $('#message-alert-contacto').removeClass('d-block').addClass('d-none');
-    
-    // clearForm('form-automovil');
-    // toastr.success("Dato guardado correctamente");
-
-    // $("#formModal").modal('hide');
-
-    
+    limpiarFormulario('form-automovil');   
+    $("#vehiculoModal").modal('hide');
+    toastr.success("Vehículo guardado exitosamente");
 }
 })
 .fail(function(jqXHR, ajaxOptions, thrownError) {

@@ -22,3 +22,5 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::resource('automovil', 'AutomovilController');
+Route::get('exportar-automoviles', 'AutomovilController@exportarExcel')->name('exportar.automoviles');
+Route::post('importar-automoviles-excel', 'AutomovilController@importarExcel')->name('importar.automoviles');

@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\AutomovilModel;
 use Log;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AutomovilExport;
+use App\Imports\AutomovilImport;
 
 class AutomovilController extends Controller
 {
@@ -75,5 +77,15 @@ class AutomovilController extends Controller
         }
 
         return $valor;
+    }
+
+
+    public function exportarExcel(){
+        return Excel::download(new AutomovilExport,"automoviles.xlsx");
+
+    }
+    public function importarExcel(Request $request){
+        $archivo= $request->file('archivo_excel');
+        Excel::import(new AutomovilImport,$archivo);
     }
 }
