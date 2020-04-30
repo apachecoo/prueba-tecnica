@@ -31,5 +31,9 @@ class AutomovilModel extends Model
         }
     }
 
+    public function listaAutomovilesXinactivar($arrayNotIn){
+        return $this->whereNotIn('placas',$arrayNotIn)->get();
+    }
+
 
 }

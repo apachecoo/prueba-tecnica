@@ -1,2 +1,2 @@
-require('./bootstrap');
-import 'toastr';
+require("./bootstrap");
+import "toastr";

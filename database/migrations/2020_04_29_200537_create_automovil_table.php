@@ -16,11 +16,12 @@ class CreateAutomovilTable extends Migration
         Schema::create('automovil', function (Blueprint $table) {
             $table->id();
             $table->string('conductor');
-            $table->string('imagen');
+            $table->string('imagen')->nullable();
             $table->string('placas')->unique();
             $table->string('modelo');
             $table->string('valor');
             $table->string('observacion')->nullable();
+            $table->boolean('estado')->default(1);
             $table->timestamps();
         });
     }
