@@ -18,9 +18,9 @@ class AutomovilController extends Controller
     public function store(Request $request)
     {
         $this->data = $request->except(['_token']);
-        $this->data['imagen']= $request->file('imagen');      
+        $this->data['imagen'] = $request->file('imagen');
 
-       
+
         $rules = [
             'conductor'              => 'required',
             'placas'                 => 'required|unique:automovil,placas',
@@ -43,12 +43,12 @@ class AutomovilController extends Controller
                 'created' => false,
                 'errors'  => $errors
             ), 200);
-        } 
+        }
 
-        $path= Storage::disk('public')->put('imagenes/'.$this->data['placas'],$request->file('imagen'));
-        $this->data['imagen']= $path;       
+        $path = Storage::disk('public')->put('imagenes/' . $this->data['placas'], $request->file('imagen'));
+        $this->data['imagen'] = $path;
 
-        $this->data['valor']=$this->validarValorIngreso($this->data['modelo']);
+        $this->data['valor'] = $this->validarValorIngreso($this->data['modelo']);
         AutomovilModel::create($this->data);
 
         return response()->json(array(
@@ -80,12 +80,62 @@ class AutomovilController extends Controller
     }
 
 
-    public function exportarExcel(){
-        return Excel::download(new AutomovilExport,"automoviles.xlsx");
-
+    public function exportarExcel()
+    {
+        return Excel::download(new AutomovilExport, "automoviles.xlsx");
     }
-    public function importarExcel(Request $request){
-        $archivo= $request->file('archivo_excel');
-        Excel::import(new AutomovilImport,$archivo);
+    public function importarExcel(Request $request)
+    {
+        $archivo = $request->file('archivo_excel');
+
+        // dd(Excel::load($archivo, function($reader){})->get());
+        // Excel::selectSheetsByIndex(0)->load($request->excel, function($reader) {
+
+        //     //$reader->formatDates(true, 'd-m-Y');
+
+        //     $excel = $reader->get();
+
+        //     $this->errors = [];
+        //     $this->rowNumber = 0;
+
+        //     $excel->each(function($row) {
+
+        //         Log::info('======recorriendo el excel======');
+        //     });
+        // });
+        // Excel::import(new AutomovilImport,$archivo);
+
+        $data = Excel::toArray(new AutomovilImport, $archivo);
+
+        // Log::info($data);
+
+        collect(head($data))
+            ->each(function ($row, $key) {
+                $automovilModel = new AutomovilModel();
+                $existePlacas = $automovilModel->existePlacas($row[3]);
+
+                if ($existePlacas) {
+                    Log::info('======entro existe placa====');
+                    return AutomovilModel::where('placas', '=', $row[3])->update([
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }else {
+                        Log::info('======entro no existe placa====');
+
+                        AutomovilModel::create([
+                            'conductor' => $row[1],
+                            'imagen' => $row[2],
+                            'placas' => $row[3],
+                            'modelo' => $row[4],
+                            'valor' => $row[5],
+                            'observacion' => $row[6],
+                        ]);
+                        
+                    }
+                // Log::info($row[2]);
+                // DB::table('produk')
+                //     ->where('id_produk', $row['id'])
+                //     ->update(array_except($row, ['id']));
+            });
     }
 }

@@ -21,4 +21,15 @@ class AutomovilModel extends Model
     ];
 
     public $timestamps = true;
+
+    public function existePlacas($placas){
+        $conteo=$this->where('placas','=',$placas)->count();
+        if($conteo>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
 }
