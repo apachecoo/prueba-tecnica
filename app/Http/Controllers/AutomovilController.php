@@ -17,6 +17,8 @@ class AutomovilController extends Controller
 
     public function store(Request $request)
     {
+
+        
         $this->data = $request->except(['_token']);
         $this->data['imagen'] = $request->file('imagen');
 
@@ -29,6 +31,8 @@ class AutomovilController extends Controller
         if (empty($this->data['hidden_id']) && !is_numeric($this->data['hidden_id'])) {
             $rules['placas'] = 'required|unique:automovil,placas';
         }
+
+        
 
         $validator = \Validator::make($this->data, $rules);
 
@@ -74,8 +78,8 @@ class AutomovilController extends Controller
     public function validarValorIngreso($modelo)
     {
 
-        // $date = Carbon::createFromFormat('Y-m-d', '2020-04-29');
-        $date = Carbon::now();
+         $date = Carbon::createFromFormat('Y-m-d', '2020-05-06');
+        // $date = Carbon::now();
 
         if ($date->day % 2 == 0) {
 
